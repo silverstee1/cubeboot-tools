@@ -14,7 +14,7 @@ CFLAGS := -O2
 apploader_entry_point = 81200000
 
 
-apploader_C_SRCS = apploader.c
+apploader_C_SRCS = apploader.c libc.c
 apploader_C_OBJS = $(patsubst %.c, %.o, $(apploader_C_SRCS))
 
 apploader_SRCS = $(apploader_C_SRCS)

@@ -25,6 +25,8 @@
 #include "../../include/gcm.h"
 #include "../../include/dol.h"
 
+#include "libc.h"
+
 #define DI_ALIGN_SHIFT	5
 #define DI_ALIGN_SIZE	(1UL << DI_ALIGN_SHIFT)
 #define DI_ALIGN_MASK	(~((1 << DI_ALIGN_SHIFT) - 1))
@@ -438,7 +440,7 @@ static int al_load(void **address, uint32_t *length, uint32_t *offset)
 		if (bl_control.sects_bitmap == bl_control.all_sects_bitmap) {
 			/* setup .bss section */
 			if (dh->size_bss)
-				memset((void *)dh->address_bss, 0,
+				_memset((void *)dh->address_bss, 0,
 				       dh->size_bss);
 
 			/* bye, bye */
@@ -504,7 +506,7 @@ static int al_load(void **address, uint32_t *length, uint32_t *offset)
 		flush_dcache_range(lowmem, lowmem+1);
 
 #if PATCH_IPL
-		skip_ipl_animation();
+		//skip_ipl_animation();
 #endif
 		*length = 0;
 		need_more = 0;
