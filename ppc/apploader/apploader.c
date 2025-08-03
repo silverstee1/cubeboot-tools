@@ -16,7 +16,7 @@
  */
 
 #define PATCH_IPL 1
-#define RESET_DVD 0
+#define RESET_DVD 1
 
 #include <stddef.h>
 #include <string.h>
