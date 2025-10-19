@@ -585,6 +585,7 @@ static enum ipl_revision get_ipl_revision(void)
 	return IPL_UNKNOWN;
 }
 
+//https://github.com/OffBroadway/gc-boot-tools/commit/c151413dc31eed75d3468e6d80368b99de204186
 #define PPC_NOP 			0x60000000
 #define PPC_BLR 			0x4e800020
 #define PPC_NULL 			0x00000000
@@ -631,6 +632,7 @@ static void patch_ipl(void)
 	uint32_t draw_inner;
 	
 	// hide anim and disable sound
+	//https://github.com/OffBroadway/gc-boot-tools/commit/c151413dc31eed75d3468e6d80368b99de204186
 	switch (get_ipl_revision()) {
 	case IPL_NTSC_10_001:
 		sound_level = 0x8145d4d0;
