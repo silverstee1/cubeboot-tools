@@ -17,6 +17,7 @@
 
 #define PATCH_IPL 2
 #define RESET_DVD 1
+#define NUKE_IPL
 
 #include <stddef.h>
 #include <string.h>
@@ -590,7 +591,8 @@ static enum ipl_revision get_ipl_revision(void)
 #define PPC_BLR 			0x4e800020
 #define PPC_NULL 			0x00000000
 
-static void patch_ipl_anim(uint32_t address_sound_level, uint32_t address_draw_cubes, uint32_t address_draw_outer, uint32_t address_draw_inner) {
+#ifdef NUKE_IPL
+static void patch_ipl_anim(uint32_t address_sound_level, uint32_t address_draw_cubes, uint32_t address_draw_outer, uint32_t address_draw_inner, uint32_t address_pad_read) {
 	uint32_t *address;
 
 	// disable sound (u16 + u8[2] padding)
@@ -616,7 +618,14 @@ static void patch_ipl_anim(uint32_t address_sound_level, uint32_t address_draw_c
 	*address = PPC_NOP;
 	flush_dcache_range(address, address+1);
 	invalidate_icache_range(address, address+1);
+
+	// disable pad read
+	address = (uint32_t *)address_pad_read;
+	*address = PPC_BLR;
+	flush_dcache_range(address, address+1);
+	invalidate_icache_range(address, address+1);
 }
+#endif
 
 /*
  *
@@ -626,10 +635,12 @@ static void patch_ipl(void)
 	uint32_t *start, *end;
 	uint32_t *address;
 	
+	#ifdef NUKE_IPL
 	uint32_t sound_level;
 	uint32_t draw_cubes;
 	uint32_t draw_outer;
 	uint32_t draw_inner;
+	uint32_t pad_read;
 	
 	// hide anim and disable sound
 	//https://github.com/OffBroadway/gc-boot-tools/commit/c151413dc31eed75d3468e6d80368b99de204186
@@ -639,53 +650,61 @@ static void patch_ipl(void)
 		draw_cubes = 0x8131055c;
 		draw_outer = 0x8130d224;
 		draw_inner = 0x81310598;
-		patch_ipl_anim(sound_level, draw_cubes, draw_outer, draw_inner);
+		pad_read = 0x81302c3c;
+		patch_ipl_anim(sound_level, draw_cubes, draw_outer, draw_inner, pad_read);
 		break;
 	case IPL_NTSC_11_001:
 		sound_level = 0x81481278;
 		draw_cubes = 0x81310754;
 		draw_outer = 0x8130d428;
 		draw_inner = 0x81310790;
-		patch_ipl_anim(sound_level, draw_cubes, draw_outer, draw_inner);
+		pad_read = 0x81302b24;
+		patch_ipl_anim(sound_level, draw_cubes, draw_outer, draw_inner, pad_read);
 		break;
 	case IPL_NTSC_12_001:
 		sound_level = 0x81483340;
 		draw_cubes = 0x81310aec;
 		draw_outer = 0x8130d79c;
 		draw_inner = 0x81310b28;
-		patch_ipl_anim(sound_level, draw_cubes, draw_outer, draw_inner);
+		pad_read = 0x81302ec0;
+		patch_ipl_anim(sound_level, draw_cubes, draw_outer, draw_inner, pad_read);
 		break;
 	case IPL_NTSC_12_101:
 		sound_level = 0x814837c0;
 		draw_cubes = 0x81310b04;
 		draw_outer = 0x8130d7b4;
 		draw_inner = 0x81310b40;
-		patch_ipl_anim(sound_level, draw_cubes, draw_outer, draw_inner);
+		pad_read = 0x81302ed8;
+		patch_ipl_anim(sound_level, draw_cubes, draw_outer, draw_inner, pad_read);
 		break;
 	case IPL_PAL_10_001:
 		sound_level = 0x814ad118;
 		draw_cubes = 0x81310e94;
 		draw_outer = 0x8130d868;
 		draw_inner = 0x81310ed0;
-		patch_ipl_anim(sound_level, draw_cubes, draw_outer, draw_inner);
+		pad_read = 0x81302b24;
+		patch_ipl_anim(sound_level, draw_cubes, draw_outer, draw_inner, pad_read);
 		break;
 	case IPL_MPAL_11:
 		sound_level = 0x8147bf38;
 		draw_cubes = 0x81310680;
 		draw_outer = 0x8130d354;
 		draw_inner = 0x813106bc;
-		patch_ipl_anim(sound_level, draw_cubes, draw_outer, draw_inner);
+		pad_read = 0x81302b24;
+		patch_ipl_anim(sound_level, draw_cubes, draw_outer, draw_inner, pad_read);
 		break;
 	case IPL_PAL_12_101:
 		sound_level = 0x814af400;
 		draw_cubes = 0x81310fd4;
 		draw_outer = 0x8130d9a8;
 		draw_inner = 0x81311010;
-		patch_ipl_anim(sound_level, draw_cubes, draw_outer, draw_inner);
+		pad_read = 0x81302c8c;
+		patch_ipl_anim(sound_level, draw_cubes, draw_outer, draw_inner, pad_read);
 		break;
 	default:
 		break;
 	}
+	#endif
 
 
 	switch (get_ipl_revision()) {
